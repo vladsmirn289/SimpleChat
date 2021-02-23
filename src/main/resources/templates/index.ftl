@@ -1,21 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
+<#import "common.ftl" as c>
+<#include "security.ftl">
 
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+<@c.commonPage '<link href="/css/main.css" rel="stylesheet">'>
+    <script type="text/javascript" src="/js/chat.js"></script>
 
-    <title></title>
-
-    <link type="text/css" rel="stylesheet" href="/webjars/bootstrap/4.6.0/css/bootstrap.min.css"/>
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
-    <link href="css/main.css" rel="stylesheet">
-</head>
-
-<body>
-    <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-    <script src="/webjars/bootstrap/4.6.0/js/bootstrap.min.js"></script>
-    <script src="/webjars/popper.js/2.5.4/umd/popper.min.js"></script>
+    <div>
+        <input type="hidden" id="login_name" value="${login_name}"/>
+    </div>
 
     <div class="container">
         <!-- Page header start -->
@@ -251,6 +242,4 @@
         </div>
         <!-- Content wrapper end -->
     </div>
-</body>
-
-</html>
+</@c.commonPage>
