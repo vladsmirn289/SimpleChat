@@ -175,7 +175,7 @@
                                     <ul class="users" id="user_search_ul"></ul>
                                 </div>
 
-                                <div class="chat-container" id="chat_with_user" hidden="hidden">
+                                <div class="chat-container" id="chat_with_user">
                                     <div class="chat-box-div">
 
                                         <ul class="chat-box chatContainerScroll">
@@ -183,24 +183,24 @@
                                         </ul>
                                     </div>
                                     <#--
-                                            <li class="chat-left">
-                                                <div class="chat-avatar">
-                                                    <img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
-                                                    <div class="chat-name">Russell</div>
-                                                </div>
-                                                <div class="chat-text">Hello, I'm Russell.
-                                                    <br>How can I help you today?</div>
-                                                <div class="chat-hour">08:55 <span class="fa fa-check-circle"></span></div>
-                                            </li>
-                                            <li class="chat-right">
-                                                <div class="chat-hour">08:56 <span class="fa fa-check-circle"></span></div>
-                                                <div class="chat-text">Hi, Russell
-                                                    <br> I need more information about Developer Plan.</div>
-                                                <div class="chat-avatar">
-                                                    <img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
-                                                    <div class="chat-name">Sam</div>
-                                                </div>
-                                            </li>
+<li class="chat-left">
+    <div class="chat-avatar">
+        <img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
+        <div class="chat-name">Russell</div>
+    </div>
+    <div class="chat-text">Hello, I'm Russell.
+        <br>How can I help you today?</div>
+    <div class="chat-hour">08:55 <span class="fa fa-check-circle"></span></div>
+</li>
+<li class="chat-right">
+    <div class="chat-hour">08:56 <span class="fa fa-check-circle"></span></div>
+    <div class="chat-text">Hi, Russell
+        <br> I need more information about Developer Plan.</div>
+    <div class="chat-avatar">
+        <img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
+        <div class="chat-name">Sam</div>
+    </div>
+</li>
                                             <li class="chat-left">
                                                 <div class="chat-avatar">
                                                     <img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">

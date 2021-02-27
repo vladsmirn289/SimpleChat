@@ -12,6 +12,63 @@ function connect() {
     });
 }
 
+function loadMessages(user1, user2) {
+    $.ajax({
+        type: "GET",
+        url: "/message/" + user1 + "/" + user2,
+        contentType: "application/json",
+        dataType: "json",
+        data: '',
+        success: function(messages) {
+            for (let i = 0; i < messages.length; i++) {
+                let msg = messages[i];
+
+                console.log(msg);
+
+                let content = msg.content;
+                let chatName = msg.sender;
+
+                let firstPartOfDate = msg.createdOn.toString().split("T")[0].split("-");
+                let secondPartOfDate = msg.createdOn.toString().split("T")[1].split(":");
+
+                let year = firstPartOfDate[0];
+                let month = firstPartOfDate[1];
+                let day = firstPartOfDate[2];
+                let hours = secondPartOfDate[0];
+                let minutes = secondPartOfDate[1];
+
+                let time = year + "." + month + "." + day + " " + hours + ":" + minutes;
+
+                if(messages[i].recipient === username) {
+                    $('.chat-box').append(
+                        "<li class='chat-left'>\n" +
+                        "    <div class='chat-avatar'>\n" +
+                        "        <img src='https://www.bootdey.com/img/Content/avatar/avatar3.png' alt='Retail Admin'>\n" +
+                        "        <div class='chat-name'>" + chatName + "</div>\n" +
+                        "    </div>\n" +
+                        "    <div class='chat-text' style='max-width: 50%'>" + content + "</div>\n" +
+                        "    <div class='chat-hour'>" + time + " <span class='fa fa-check-circle'></span></div>\n" +
+                        "</li>"
+                    );
+                } else {
+                    $('.chat-box').append(
+                        "<li class='chat-right'>\n" +
+                        "    <div class='chat-hour'>" + time + " <span class='fa fa-check-circle'></span></div>\n" +
+                        "    <div class='chat-text' style='max-width: 50%'>" + content + "</div>\n" +
+                        "    <div class='chat-avatar'>\n" +
+                        "        <img src='https://www.bootdey.com/img/Content/avatar/avatar3.png' alt='Retail Admin'>\n" +
+                        "        <div class='chat-name'>" + chatName + "</div>\n" +
+                        "    </div>\n" +
+                        "</li>"
+                    );
+                }
+            }
+        }, error: function(error) {
+            console.log(error);
+        }
+    });
+}
+
 function searchNewUsers() {
     $.ajax({
         type: "GET",
@@ -69,7 +126,7 @@ function searchFriends() {
             $('#user_contacts').html("");
             for (let i = 0; i < friends.length; i++) {
                 $('#user_contacts').append(
-                    "<li class='person'>\n" +
+                    "<li class='person person_contacts'>\n" +
                     "    <div class='user'>\n" +
                     "        <img src='https://www.bootdey.com/img/Content/avatar/avatar1.png' alt='Retail Admin'>\n" +
                     "        <span class='status offline'></span>\n" +
@@ -80,6 +137,19 @@ function searchFriends() {
                     "</li>"
                 )
             }
+
+            $('.person_contacts').click(function () {
+                disableChatBoxElements();
+
+                $('.active-user').removeClass('active-user');
+                $(this).addClass('active-user');
+
+                $('#chat_with_user').show();
+                let friend = $(this).children('.name-time').children('.name').html();
+                $('.name').html(friend);
+
+                loadMessages(username, friend);
+            });
         }, error: function(error) {
             console.log(error);
         }
@@ -107,6 +177,8 @@ function disableChatBoxElements() {
 
     $('#user_search').hide();
     $('#user_search_ul').html("");
+
+    $('.active-user').removeClass('active-user');
 }
 
 $(function () {

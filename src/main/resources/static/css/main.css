@@ -296,7 +296,7 @@ body {
 }
 
 .chat-container li.chat-right > .chat-text {
-    text-align: right;
+    /*text-align: right;*/
 }
 
 .chat-container li.chat-right > .chat-text:before {
