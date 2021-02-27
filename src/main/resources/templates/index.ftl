@@ -6,6 +6,7 @@
 
     <div>
         <input type="hidden" id="login_name" value="${login_name}"/>
+        <input type="hidden" id="user_id" value="${user_id}"/>
     </div>
 
     <div class="container">
@@ -20,7 +21,7 @@
                         <div class="date-range">
                             <div id="reportrange">
                                 <i class="fa fa-calendar cal"></i>
-                                <span class="range-text">Jun 11, 2019 - Jul 10, 2019</span>
+                                <span class="range-text" id="calendar_date"></span>
                             </div>
                         </div>
                     </div>
@@ -47,14 +48,18 @@
                                         <div class="input-group">
                                             <input class="form-control" placeholder="Search">
                                             <div class="input-group-btn">
-                                                <button type="button" class="btn btn-info">
+                                                <button type="button" id="friends_search" class="btn btn-info mr-1">
                                                     <i class="fa fa-search"></i>
                                                 </button>
                                             </div>
+
+                                            <button type="button" id="refresh_users" class="btn btn-info">
+                                                <i class="fa fa-refresh"></i>
+                                            </button>
                                         </div>
                                     </div>
-                                    <ul class="users">
-                                        <li class="person" data-chat="person1">
+                                    <ul class="users" id="user_contacts">
+                                        <#--<li class="person" data-chat="person1">
                                             <div class="user">
                                                 <img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
                                                 <span class="status busy"></span>
@@ -113,17 +118,71 @@
                                                 <span class="name">Michael Jordan</span>
                                                 <span class="time">05/02/2019</span>
                                             </p>
-                                        </li>
+                                        </li>-->
                                     </ul>
                                 </div>
                             </div>
                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-9 col-9">
-                                <div class="selected-user">
-                                    <span>To: <span class="name">Emily Russell</span></span>
+
+                                <div class="py-2 px-4 border-bottom d-none d-lg-block">
+                                    <div class="d-flex align-items-center py-1">
+                                        <#--<div class="selected-user">
+                                            <span class="name">Settings</span>
+                                            &lt;#&ndash;<span>To: <span class="name">Emily Russell</span></span>&ndash;&gt;
+                                        </div>-->
+                                        <div class="flex-grow-1 pl-3">
+                                            <span class="name"><strong>User search</strong></span>
+                                            <#--<div class="text-muted small"><em>Typing...</em></div>-->
+                                        </div>
+
+                                        <div class="dropdown">
+                                            <button class="btn btn-light border btn-lg px-3 dropdown-toggle"
+                                                    type="button" id="dropdownMenuButton"
+                                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                     width="24" height="24" viewBox="0 0 24 24"
+                                                     fill="none" stroke="currentColor" stroke-width="2"
+                                                     stroke-linecap="round" stroke-linejoin="round"
+                                                     class="feather feather-more-horizontal feather-lg">
+
+                                                    <circle cx="12" cy="12" r="1"></circle>
+                                                    <circle cx="19" cy="12" r="1"></circle>
+                                                    <circle cx="5" cy="12" r="1"></circle>
+
+                                                </svg>
+                                            </button>
+
+                                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                <a class="dropdown-item" id="user_search_dropdown" href="#">User search</a>
+                                                <a class="dropdown-item" id="profile_dropdown" href="#">Profile</a>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="chat-container">
+
+                                <div class="chat-box-div" id="user_search">
+                                    <div class="chat-search-box">
+                                        <div class="input-group">
+                                            <input class="form-control" id="users_search_input" placeholder="Search"/>
+                                            <div class="input-group-btn">
+                                                <button type="button" id="users_search" class="btn btn-info">
+                                                    <i class="fa fa-search"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <ul class="users" id="user_search_ul"></ul>
+                                </div>
+
+                                <div class="chat-container" id="chat_with_user" hidden="hidden">
                                     <div class="chat-box-div">
+
                                         <ul class="chat-box chatContainerScroll">
+
+                                        </ul>
+                                    </div>
+                                    <#--
                                             <li class="chat-left">
                                                 <div class="chat-avatar">
                                                     <img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
@@ -223,8 +282,7 @@
                                                     <br>I'm very excited to show this to our team.</div>
                                                 <div class="chat-hour">07:00 <span class="fa fa-check-circle"></span></div>
                                             </li>
-                                        </ul>
-                                    </div>
+                                        -->
                                     <div class="form-group mt-3 mb-0">
                                         <textarea class="form-control" rows="3" placeholder="Type your message here..."></textarea>
                                     </div>

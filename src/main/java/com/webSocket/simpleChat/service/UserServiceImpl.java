@@ -12,7 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -33,6 +35,25 @@ public class UserServiceImpl implements UserService {
     public Optional<User> findByLogin(String login) {
         logger.info("Finding user by login: " + login);
         return userRepo.findByLogin(login);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<User> searchUsers(String search) {
+        logger.info("Searching users by keyword: " + search);
+        return userRepo.searchUsers(search);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<User> findFriends(User user) {
+        logger.info("Searching all friends of user " + user.getLogin());
+        return new ArrayList<>(user.getUserFriends());
+    }
+
+    @Override
+    public Optional<User> findById(Long id) {
+        return userRepo.findById(id);
     }
 
     @Override

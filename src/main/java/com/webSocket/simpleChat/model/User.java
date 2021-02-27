@@ -1,5 +1,7 @@
 package com.webSocket.simpleChat.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -35,6 +37,17 @@ public class User implements UserDetails {
     @CollectionTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"))
     private Set<Role> roles = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name="table_friends",
+            joinColumns=@JoinColumn(name="user_id"),
+            inverseJoinColumns=@JoinColumn(name="friend_id"))
+    @JsonIdentityReference
+    private Set<User> userFriends = new HashSet<>();
+
+    @ManyToMany(mappedBy = "userFriends")
+    @JsonIgnore
+    private Set<User> friendsOf = new HashSet<>();
 
     protected User() {
 
@@ -83,6 +96,22 @@ public class User implements UserDetails {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public Set<User> getUserFriends() {
+        return userFriends;
+    }
+
+    public void setUserFriends(Set<User> userFriends) {
+        this.userFriends = userFriends;
+    }
+
+    public Set<User> getFriendsOf() {
+        return friendsOf;
+    }
+
+    public void setFriendsOf(Set<User> friendsOf) {
+        this.friendsOf = friendsOf;
     }
 
     @Override

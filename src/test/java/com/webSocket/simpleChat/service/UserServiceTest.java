@@ -9,6 +9,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,7 +22,7 @@ public class UserServiceTest {
     private final UserRepo userRepo = mock(UserRepo.class);
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(8);
     private User testUser;
-    private UserService userService = new UserServiceImpl(userRepo, passwordEncoder);
+    private final UserService userService = new UserServiceImpl(userRepo, passwordEncoder);
 
     @BeforeEach
     public void init() {
@@ -37,6 +39,28 @@ public class UserServiceTest {
         User user = found.get();
         assertThat(user.getLogin()).isEqualTo("testLogin");
         assertThat(user.getPassword()).isEqualTo("pass");
+    }
+
+    @Test
+    void shouldFindById() {
+        when(userRepo.findById(150L))
+                .thenReturn(Optional.of(testUser));
+
+        Optional<User> found = userService.findById(150L);
+        assertThat(found.isPresent()).isTrue();
+        User user = found.get();
+        assertThat(user.getLogin()).isEqualTo("testLogin");
+        assertThat(user.getPassword()).isEqualTo("pass");
+    }
+
+    @Test
+    void shouldSearchUsers() {
+        List<User> users = Arrays.asList(new User("user1", "pass"), new User("user2", "pass"));
+        when(userRepo.searchUsers("se"))
+                .thenReturn(users);
+
+        assertThat(userService.searchUsers("se"))
+                .isEqualTo(users);
     }
 
     @Test
