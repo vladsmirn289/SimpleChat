@@ -13,4 +13,6 @@ public interface UserService extends UserDetailsService {
     List<User> findFriends(User user);
 
     void save(User user);
+
+    void setFriendIfAbsent(String user, String friend);
 }

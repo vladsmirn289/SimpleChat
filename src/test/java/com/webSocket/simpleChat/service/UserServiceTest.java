@@ -15,18 +15,18 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class UserServiceTest {
     private final UserRepo userRepo = mock(UserRepo.class);
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(8);
-    private User testUser;
+    private User testUser, testUser2;
     private final UserService userService = new UserServiceImpl(userRepo, passwordEncoder);
 
     @BeforeEach
     public void init() {
         testUser = new User("testLogin", "pass");
+        testUser2= new User("testLogin2", "pass");
     }
 
     @Test
@@ -91,6 +91,37 @@ public class UserServiceTest {
         assertThat(testUser.getEmail()).isEqualTo(null);
         assertThat(testUser.getId()).isEqualTo(150L);
         assertThat(testUser.getLogin()).isEqualTo("testLogin");
+    }
+
+    @Test
+    void shouldSetFriendIfAbsent() {
+        when(userRepo.findByLogin("testLogin"))
+                .thenReturn(Optional.of(testUser));
+
+        when(userRepo.findByLogin("testLogin2"))
+                .thenReturn(Optional.of(testUser2));
+
+        userService.setFriendIfAbsent("testLogin", "testLogin2");
+        assertThat(testUser.getUserFriends().size()).isEqualTo(1);
+        assertThat(testUser.getUserFriends().iterator().next().getLogin()).isEqualTo("testLogin2");
+
+        verify(userRepo, times(1))
+                .save(testUser);
+    }
+
+    @Test
+    void shouldNotSetUserWhenHeIsAlreadyFriend() {
+        testUser.getUserFriends().add(testUser2);
+        when(userRepo.findByLogin("testLogin"))
+                .thenReturn(Optional.of(testUser));
+
+        when(userRepo.findByLogin("testLogin2"))
+                .thenReturn(Optional.of(testUser2));
+
+        userService.setFriendIfAbsent("testLogin", "testLogin2");
+
+        verify(userRepo, times(0))
+                .save(testUser);
     }
 
     @Test

@@ -19,7 +19,7 @@ public class Message {
     private String content;
 
     @Enumerated(value = EnumType.STRING)
-    private Status status;
+    private MessageStatus status;
 
     @CreationTimestamp
     @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -66,11 +66,11 @@ public class Message {
         this.content = content;
     }
 
-    public Status getStatus() {
+    public MessageStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(MessageStatus status) {
         this.status = status;
     }
 

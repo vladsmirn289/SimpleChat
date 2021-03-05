@@ -1,7 +1,6 @@
 package com.webSocket.simpleChat.model;
 
-public enum Status {
-    NEW,
+public enum MessageStatus {
     SENT,
     READ
 }

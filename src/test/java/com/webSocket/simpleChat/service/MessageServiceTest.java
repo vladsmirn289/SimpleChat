@@ -6,6 +6,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -17,7 +18,17 @@ public class MessageServiceTest {
     private Message msg2 = new Message("user2", "user1", "content2");
 
     @Test
-    public void shouldFindByRecipientAndSender() {
+    public void shouldFindMessageById() {
+        when(messageService.findById(1L))
+                .thenReturn(Optional.of(msg1));
+
+        Optional<Message> found = messageService.findById(1L);
+        assertThat(found.isPresent()).isTrue();
+        assertThat(found.get()).isEqualTo(msg1);
+    }
+
+    @Test
+    public void shouldFindMessagesOfTwoUsers() {
         when(messageService.findMessagesOfTwoUsers("user1", "user2"))
                 .thenReturn(Arrays.asList(msg1, msg2));
 

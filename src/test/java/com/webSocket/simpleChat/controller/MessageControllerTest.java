@@ -1,7 +1,6 @@
 package com.webSocket.simpleChat.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.webSocket.simpleChat.model.Message;
 import com.webSocket.simpleChat.service.MessageService;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,9 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.text.DateFormat;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 
 import static org.mockito.Mockito.when;
@@ -27,7 +24,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@WithMockUser
 public class MessageControllerTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private Message msg1, msg2;
@@ -48,6 +44,7 @@ public class MessageControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void shouldGetMessages() throws Exception {
         when(messageService.findMessagesOfTwoUsers("user1", "user2"))
                 .thenReturn(Arrays.asList(msg1, msg2));

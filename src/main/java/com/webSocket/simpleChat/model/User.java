@@ -1,7 +1,6 @@
 package com.webSocket.simpleChat.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -42,7 +41,7 @@ public class User implements UserDetails {
     @JoinTable(name="table_friends",
             joinColumns=@JoinColumn(name="user_id"),
             inverseJoinColumns=@JoinColumn(name="friend_id"))
-    @JsonIdentityReference
+    @JsonIdentityInfo(property = "@id", generator = ObjectIdGenerators.IntSequenceGenerator.class)
     private Set<User> userFriends = new HashSet<>();
 
     @ManyToMany(mappedBy = "userFriends")

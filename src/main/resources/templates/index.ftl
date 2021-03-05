@@ -131,7 +131,7 @@
                                             &lt;#&ndash;<span>To: <span class="name">Emily Russell</span></span>&ndash;&gt;
                                         </div>-->
                                         <div class="flex-grow-1 pl-3">
-                                            <span class="name"><strong>User search</strong></span>
+                                            <span class="name"><strong id="selected_option">User search</strong></span>
                                             <#--<div class="text-muted small"><em>Typing...</em></div>-->
                                         </div>
 
@@ -283,8 +283,14 @@
                                                 <div class="chat-hour">07:00 <span class="fa fa-check-circle"></span></div>
                                             </li>
                                         -->
-                                    <div class="form-group mt-3 mb-0">
-                                        <textarea class="form-control" rows="3" placeholder="Type your message here..."></textarea>
+                                    <div class="input-group mt-3 mb-0">
+                                        <textarea class="form-control mr-1" id="message_text"
+                                                  rows="3" placeholder="Type your message here..."></textarea>
+                                        <div class="input-group-btn my-auto">
+                                            <button type="button" id="send_message" class="btn btn-info form-control">
+                                                <i class="fa fa-paper-plane"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

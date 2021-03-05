@@ -3,6 +3,7 @@ package com.webSocket.simpleChat.service;
 import com.webSocket.simpleChat.model.Role;
 import com.webSocket.simpleChat.model.User;
 import com.webSocket.simpleChat.repository.UserRepo;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,12 +11,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional
@@ -48,7 +47,11 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public List<User> findFriends(User user) {
         logger.info("Searching all friends of user " + user.getLogin());
-        return new ArrayList<>(user.getUserFriends());
+        User managedUser = findByLogin(user.getLogin()).orElseThrow(
+                () -> new RuntimeException("User " + user.getLogin() + " not found")
+        );
+        Hibernate.initialize(managedUser.getUserFriends());
+        return new ArrayList<>(managedUser.getUserFriends());
     }
 
     @Override
@@ -84,6 +87,25 @@ public class UserServiceImpl implements UserService {
         logger.info("Updating user with login " + user.getLogin());
         userRepo.save(user);
         logger.info("User with login " + user.getLogin() + " successfully updated");
+    }
+
+    @Override
+    public void setFriendIfAbsent(String user, String friend) {
+        logger.info("Trying to set user " + friend + " to user " + user + " friends");
+        User sourceUser = findByLogin(user)
+                .orElseThrow(() -> new RuntimeException("User " + user + " not found"));
+        User friendUser = findByLogin(friend)
+                .orElseThrow(() -> new RuntimeException("User " + friend + " not found"));
+        List<User> recipientFriends = findFriends(sourceUser);
+        if (!recipientFriends.contains(friendUser)) {
+            recipientFriends.add(friendUser);
+            sourceUser.setUserFriends(new HashSet<>(recipientFriends));
+            save(sourceUser);
+            logger.info("User " + friend + " successfully set to user " + user + " friends");
+            return;
+        }
+
+        logger.info("User " + friend + " already exists in user " + user + " friends");
     }
 
     @Override

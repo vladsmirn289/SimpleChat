@@ -8,7 +8,84 @@ function connect() {
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
         console.log("connected to: " + frame);
-        //stompClient.subscribe();
+        stompClient.subscribe("/topic/messages/" + username, function (response) {
+            let msg = JSON.parse(response.body);
+            processMessage(msg);
+        });
+
+        stompClient.subscribe("/topic/update/" + username, function (response) {
+            updateMessages(response.body);
+        })
+    });
+}
+
+function processMessage(message) {
+    console.log("Received message from " + message.sender);
+
+    if ($('#user_contacts').html().toString().indexOf(message.sender) === -1 && message.sender !== username) {
+        console.log("Updating friends");
+        searchFriends();
+    }
+
+    console.log(message.sender + " " + username + " " + $('#selected_option').html() + " " + message.sender);
+    if ((message.sender === username) ||
+        ($('#selected_option').html() === message.sender)) {
+        console.log("Rendering message");
+        renderMessage(message);
+    } else {
+        console.log("Updating badge")
+        incrementBadge(message.sender);
+    }
+}
+
+function updateMessages(recipient) {
+    console.log("Updating messages " + recipient);
+    if ($('#selected_option').html() === recipient) {
+        loadMessages(username, recipient);
+    }
+}
+
+function searchFriends() {
+    $.ajax({
+        type: "GET",
+        url: "/user/friends/" + userId,
+        contentType: "application/json",
+        data: '',
+        success: function(data) {
+            let friends = data;
+            $('#user_contacts').html("");
+            for (let i = 0; i < friends.length; i++) {
+                $('#user_contacts').append(
+                    "<li class='person person_contacts d-flex align-items-center'>\n" +
+                    "    <div class='user'>\n" +
+                    "        <img src='https://www.bootdey.com/img/Content/avatar/avatar1.png' alt='Retail Admin'>\n" +
+                    "        <span class='status offline'></span>\n" +
+                    "    </div>\n" +
+                    "    <div class='flex-grow-1 my-auto' id='flex-wrap'>\n" +
+                    "        <p class='name-time'>\n" +
+                    "            <span class='name'>" + friends[i].login + "</span>\n" +
+                    "        </p>\n" +
+                    "    </div>\n" +
+                    "    <div class='badge bg-success'></div>\n" +
+                    "</li>"
+                )
+            }
+
+            $('.person_contacts').click(function () {
+                disableChatBoxElements();
+
+                $('.active-user').removeClass('active-user');
+                $(this).addClass('active-user');
+
+                $('#chat_with_user').show();
+                let friend = $(this).children('#flex-wrap').children('.name-time').children('.name').html();
+                $('#selected_option').html(friend);
+
+                loadMessages(username, friend);
+            });
+        }, error: function(error) {
+            console.log(error);
+        }
     });
 }
 
@@ -21,52 +98,123 @@ function loadMessages(user1, user2) {
         data: '',
         success: function(messages) {
             for (let i = 0; i < messages.length; i++) {
-                let msg = messages[i];
-
-                console.log(msg);
-
-                let content = msg.content;
-                let chatName = msg.sender;
-
-                let firstPartOfDate = msg.createdOn.toString().split("T")[0].split("-");
-                let secondPartOfDate = msg.createdOn.toString().split("T")[1].split(":");
-
-                let year = firstPartOfDate[0];
-                let month = firstPartOfDate[1];
-                let day = firstPartOfDate[2];
-                let hours = secondPartOfDate[0];
-                let minutes = secondPartOfDate[1];
-
-                let time = year + "." + month + "." + day + " " + hours + ":" + minutes;
-
-                if(messages[i].recipient === username) {
-                    $('.chat-box').append(
-                        "<li class='chat-left'>\n" +
-                        "    <div class='chat-avatar'>\n" +
-                        "        <img src='https://www.bootdey.com/img/Content/avatar/avatar3.png' alt='Retail Admin'>\n" +
-                        "        <div class='chat-name'>" + chatName + "</div>\n" +
-                        "    </div>\n" +
-                        "    <div class='chat-text' style='max-width: 50%'>" + content + "</div>\n" +
-                        "    <div class='chat-hour'>" + time + " <span class='fa fa-check-circle'></span></div>\n" +
-                        "</li>"
-                    );
-                } else {
-                    $('.chat-box').append(
-                        "<li class='chat-right'>\n" +
-                        "    <div class='chat-hour'>" + time + " <span class='fa fa-check-circle'></span></div>\n" +
-                        "    <div class='chat-text' style='max-width: 50%'>" + content + "</div>\n" +
-                        "    <div class='chat-avatar'>\n" +
-                        "        <img src='https://www.bootdey.com/img/Content/avatar/avatar3.png' alt='Retail Admin'>\n" +
-                        "        <div class='chat-name'>" + chatName + "</div>\n" +
-                        "    </div>\n" +
-                        "</li>"
-                    );
-                }
+                renderMessage(messages[i]);
             }
         }, error: function(error) {
             console.log(error);
         }
     });
+}
+
+function renderMessage(msg) {
+    let content = msg.content;
+    let chatName = msg.sender;
+    let status = msg.status;
+
+    let firstPartOfDate = msg.createdOn.toString().split("T")[0].split("-");
+    let secondPartOfDate = msg.createdOn.toString().split("T")[1].split(":");
+
+    let year = firstPartOfDate[0];
+    let month = firstPartOfDate[1];
+    let day = firstPartOfDate[2];
+    let hours = secondPartOfDate[0];
+    let minutes = secondPartOfDate[1];
+
+    let time = year + "." + month + "." + day + " " + hours + ":" + minutes;
+
+    let checkCircle = "";
+    if (status === 'READ') {
+        checkCircle = "<span class='fa fa-check-circle'></span>";
+    }
+    if (msg.recipient === username && status === 'SENT') {
+        checkCircle = "<span class='fa fa-check-circle'></span>";
+        readMessage(msg);
+        decrementBadge(msg.sender);
+    }
+
+    if(msg.recipient === username) {
+        $('.chat-box').append(
+            "<li class='chat-left'>\n" +
+            "    <div class='chat-avatar'>\n" +
+            "        <img src='https://www.bootdey.com/img/Content/avatar/avatar3.png' alt='Retail Admin'>\n" +
+            "        <div class='chat-name'>" + chatName + "</div>\n" +
+            "    </div>\n" +
+            "    <div class='chat-text' style='max-width: 50%'><pre>" + content + "</pre></div>\n" +
+            "    <div class='chat-hour'>" + time + "  " + checkCircle + "</div>\n" +
+            "</li>"
+        );
+    } else {
+        $('.chat-box').append(
+            "<li class='chat-right'>\n" +
+            "    <div class='chat-hour'>" + time + "  " + checkCircle + "</div>\n" +
+            "    <div class='chat-text' style='max-width: 50%'><pre>" + content + "</pre></div>\n" +
+            "    <div class='chat-avatar'>\n" +
+            "        <img src='https://www.bootdey.com/img/Content/avatar/avatar3.png' alt='Retail Admin'>\n" +
+            "        <div class='chat-name'>" + chatName + "</div>\n" +
+            "    </div>\n" +
+            "</li>"
+        );
+    }
+
+    $('.chat-box-div').scrollTop($('.chat-box').height());
+}
+
+function readMessage(msg) {
+    console.log("Change status of message with id " + msg.id);
+
+    stompClient.send("/chat/message/read/" + msg.id, {});
+}
+
+function incrementBadge(name) {
+    let user = $('p.name-time > span.name:contains(' + name + ')');
+
+    let counter = user.parent().parent().parent().children('div.badge').html();
+    if (counter === '') {
+        counter = 1;
+    } else {
+        ++counter;
+    }
+
+    user.parent().parent().parent().children('div.badge').html(counter);
+}
+
+function decrementBadge(name) {
+    console.log("Decrementing badge");
+    let user = $('p.name-time > span.name:contains(' + name + ')');
+
+    let counter = user.parent().parent().parent().children('div.badge').html();
+    if (counter === '') {
+        counter = '';
+    } else {
+        --counter;
+    }
+
+    if (counter == 0) {
+        counter = '';
+    }
+    user.parent().parent().parent().children('div.badge').html(counter);
+}
+
+function disableChatBoxElements() {
+    $('#chat_with_user').hide();
+    $('.chat-box').html("");
+
+    $('#user_search').hide();
+    $('#user_search_ul').html("");
+
+    $('.active-user').removeClass('active-user');
+}
+
+function sendMessage(recipient, sender, text) {
+    console.log("Sending message from " + sender + " to " + recipient);
+
+    stompClient.send("/chat/message/" + recipient + "/" + sender, {}, JSON.stringify({
+        recipient: recipient,
+        sender: sender,
+        content: text
+    }));
+
+    $('#message_text').val('');
 }
 
 function searchNewUsers() {
@@ -95,7 +243,7 @@ function searchNewUsers() {
                     "        <img src='https://www.bootdey.com/img/Content/avatar/avatar1.png' alt='Retail Admin'>\n" +
                     "        <span class='status offline'></span>\n" +
                     "    </div>\n" +
-                    "    <div class='flex-grow-1 my-auto'>" +
+                    "    <div class='flex-grow-1 my-auto'>\n" +
                     "        <p class='name-time'>\n" +
                     "            <span class='name'>" + users[i].login + "</span>\n" +
                     "        </p>\n" +
@@ -109,47 +257,6 @@ function searchNewUsers() {
                 let idName = $(this).attr('id').toString();
                 addNewUserToFriends(idName.split("_")[1], $(this));
             })
-        }, error: function(error) {
-            console.log(error);
-        }
-    });
-}
-
-function searchFriends() {
-    $.ajax({
-        type: "GET",
-        url: "/user/friends/" + userId,
-        contentType: "application/json",
-        data: '',
-        success: function(data) {
-            let friends = data;
-            $('#user_contacts').html("");
-            for (let i = 0; i < friends.length; i++) {
-                $('#user_contacts').append(
-                    "<li class='person person_contacts'>\n" +
-                    "    <div class='user'>\n" +
-                    "        <img src='https://www.bootdey.com/img/Content/avatar/avatar1.png' alt='Retail Admin'>\n" +
-                    "        <span class='status offline'></span>\n" +
-                    "    </div>\n" +
-                    "    <p class='name-time'>\n" +
-                    "        <span class='name'>" + friends[i].login + "</span>\n" +
-                    "    </p>\n" +
-                    "</li>"
-                )
-            }
-
-            $('.person_contacts').click(function () {
-                disableChatBoxElements();
-
-                $('.active-user').removeClass('active-user');
-                $(this).addClass('active-user');
-
-                $('#chat_with_user').show();
-                let friend = $(this).children('.name-time').children('.name').html();
-                $('.name').html(friend);
-
-                loadMessages(username, friend);
-            });
         }, error: function(error) {
             console.log(error);
         }
@@ -171,16 +278,6 @@ function addNewUserToFriends(friend_id, button) {
     setTimeout(searchFriends, 1000);
 }
 
-function disableChatBoxElements() {
-    $('#chat_with_user').hide();
-    $('.chat-box').html("");
-
-    $('#user_search').hide();
-    $('#user_search_ul').html("");
-
-    $('.active-user').removeClass('active-user');
-}
-
 $(function () {
     disableChatBoxElements();
     $('#user_search').show();
@@ -200,10 +297,18 @@ $(function () {
 
     $('#user_search_dropdown').click(function () {
         disableChatBoxElements();
+        $('#selected_option').html("User search");
         $('#user_search').show();
     });
 
     $('#refresh_users').click(function () {
         searchFriends();
+    });
+
+    $('#send_message').click(function () {
+        let text = $('#message_text').val();
+        let recipient = $('#selected_option').html();
+        let sender = username;
+        sendMessage(recipient, sender, text);
     });
 });
