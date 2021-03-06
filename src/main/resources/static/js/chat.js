@@ -15,7 +15,12 @@ function connect() {
 
         stompClient.subscribe("/topic/update/" + username, function (response) {
             updateMessages(response.body);
-        })
+        });
+
+        stompClient.subscribe("/topic/userStatus/" + username, function (response) {
+            let user = JSON.parse(response.body);
+            changeUserStatus(user);
+        });
     });
 }
 
@@ -53,13 +58,20 @@ function searchFriends() {
         data: '',
         success: function(data) {
             let friends = data;
+            let status;
             $('#user_contacts').html("");
             for (let i = 0; i < friends.length; i++) {
+                if (friends[i].online) {
+                    status = "online";
+                } else {
+                    status = "offline";
+                }
+
                 $('#user_contacts').append(
                     "<li class='person person_contacts d-flex align-items-center'>\n" +
                     "    <div class='user'>\n" +
                     "        <img src='https://www.bootdey.com/img/Content/avatar/avatar1.png' alt='Retail Admin'>\n" +
-                    "        <span class='status offline'></span>\n" +
+                    "        <span class='status " + status + "'></span>\n" +
                     "    </div>\n" +
                     "    <div class='flex-grow-1 my-auto' id='flex-wrap'>\n" +
                     "        <p class='name-time'>\n" +
@@ -183,6 +195,22 @@ function findUnreadMessages() {
             console.log(error);
         }
     });
+}
+
+function changeUserStatus(user) {
+    let login = user.login;
+    console.log("Change user " + login + " status");
+    let isOnline = user.online;
+    let userElement = $('p.name-time > span.name:contains(' + login + ')');
+
+    let statusElement = userElement.parent().parent().parent().children('div.user').children('span.status');
+    if (isOnline) {
+        statusElement.removeClass('offline');
+        statusElement.addClass('online');
+    } else {
+        statusElement.removeClass('online');
+        statusElement.addClass('offline');
+    }
 }
 
 function incrementBadge(name) {

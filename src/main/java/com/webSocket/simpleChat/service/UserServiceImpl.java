@@ -11,7 +11,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -55,6 +54,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<User> findFollowers(User user) {
+        logger.info("Searching followers by user " + user.getLogin());
+        User managedUser = findByLogin(user.getLogin()).orElseThrow(
+                () -> new RuntimeException("User " + user.getLogin() + " not found")
+        );
+        Hibernate.initialize(managedUser.getFriendsOf());
+        return new ArrayList<>(managedUser.getFriendsOf());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Optional<User> findById(Long id) {
         return userRepo.findById(id);
     }

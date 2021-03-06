@@ -11,6 +11,7 @@ public interface UserService extends UserDetailsService {
     Optional<User> findById(Long id);
     List<User> searchUsers(String search);
     List<User> findFriends(User user);
+    List<User> findFollowers(User user);
 
     void save(User user);
 

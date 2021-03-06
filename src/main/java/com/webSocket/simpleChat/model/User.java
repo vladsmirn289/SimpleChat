@@ -48,6 +48,8 @@ public class User implements UserDetails {
     @JsonIgnore
     private Set<User> friendsOf = new HashSet<>();
 
+    private boolean isOnline = false;
+
     protected User() {
 
     }
@@ -111,6 +113,14 @@ public class User implements UserDetails {
 
     public void setFriendsOf(Set<User> friendsOf) {
         this.friendsOf = friendsOf;
+    }
+
+    public boolean isOnline() {
+        return isOnline;
+    }
+
+    public void setOnline(boolean online) {
+        isOnline = online;
     }
 
     @Override
