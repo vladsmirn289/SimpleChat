@@ -1,6 +1,7 @@
 package com.webSocket.simpleChat.service;
 
 import com.webSocket.simpleChat.model.Message;
+import com.webSocket.simpleChat.model.MessageStatus;
 import com.webSocket.simpleChat.repository.MessageRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,11 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public Optional<Message> findById(Long id) {
         return messageRepo.findById(id);
+    }
+
+    @Override
+    public List<Message> findUnreadMessages(String recipient) {
+        return messageRepo.findByRecipientAndStatusIs(recipient, MessageStatus.SENT);
     }
 
     @Override

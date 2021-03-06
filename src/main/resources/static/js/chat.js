@@ -83,6 +83,8 @@ function searchFriends() {
 
                 loadMessages(username, friend);
             });
+
+            findUnreadMessages();
         }, error: function(error) {
             console.log(error);
         }
@@ -163,6 +165,24 @@ function readMessage(msg) {
     console.log("Change status of message with id " + msg.id);
 
     stompClient.send("/chat/message/read/" + msg.id, {});
+}
+
+function findUnreadMessages() {
+    console.log("Finding unread messages for " + username);
+    $.ajax({
+        type: "GET",
+        url: "/message/findUnread/" + username,
+        contentType: "application/json",
+        dataType: "json",
+        data: '',
+        success: function(messages) {
+            for (let i = 0; i < messages.length; i++) {
+                incrementBadge(messages[i].sender);
+            }
+        }, error: function(error) {
+            console.log(error);
+        }
+    });
 }
 
 function incrementBadge(name) {

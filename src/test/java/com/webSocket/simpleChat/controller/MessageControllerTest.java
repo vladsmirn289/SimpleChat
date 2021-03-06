@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -24,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@WithMockUser
 public class MessageControllerTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private Message msg1, msg2;
@@ -44,7 +46,6 @@ public class MessageControllerTest {
     }
 
     @Test
-    @WithMockUser
     public void shouldGetMessages() throws Exception {
         when(messageService.findMessagesOfTwoUsers("user1", "user2"))
                 .thenReturn(Arrays.asList(msg1, msg2));
@@ -54,5 +55,17 @@ public class MessageControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(msg2, msg1))));
+    }
+
+    @Test
+    public void shouldFindUnreadMessages() throws Exception {
+        when(messageService.findUnreadMessages("rec"))
+                .thenReturn(Collections.singletonList(msg1));
+
+        mockMvc.perform(get("/message/findUnread/rec"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(objectMapper.writeValueAsString(Collections.singletonList(msg1))));
     }
 }

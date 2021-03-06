@@ -46,6 +46,14 @@ public class MessageController {
         return ResponseEntity.ok(messages);
     }
 
+    @GetMapping("/findUnread/{recipient}")
+    public ResponseEntity<List<Message>> findUnreadMessages(@PathVariable String recipient) {
+        logger.info("Searching unread messages for recipient " + recipient);
+        List<Message> unreadMessages = messageService.findUnreadMessages(recipient);
+
+        return ResponseEntity.ok(unreadMessages);
+    }
+
     @MessageMapping("/message/{recipient}/{sender}")
     public void sendMessage(@DestinationVariable String recipient,
                             @DestinationVariable String sender,
