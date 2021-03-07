@@ -5,6 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -42,9 +44,10 @@ public class UserRepoTest {
 
     @Test
     public void shouldSearchUsers() {
-        List<User> users1 = userRepo.searchUsers("tlo");
-        List<User> users2 = userRepo.searchUsers("test");
-        List<User> users3 = userRepo.searchUsers("testLogin");
+        Pageable pageable = PageRequest.of(0, 5);
+        List<User> users1 = userRepo.searchUsers("tlo", pageable).getContent();
+        List<User> users2 = userRepo.searchUsers("test", pageable).getContent();
+        List<User> users3 = userRepo.searchUsers("testLogin", pageable).getContent();
 
         assertThat(users1.size()).isEqualTo(1);
         assertThat(users2.size()).isEqualTo(1);
@@ -54,7 +57,7 @@ public class UserRepoTest {
                 .isEqualTo(users3.get(0).getLogin())
                 .isEqualTo("testLogin");
 
-        List<User> users4 = userRepo.searchUsers("s");
+        List<User> users4 = userRepo.searchUsers("s", pageable).getContent();
         assertThat(users4.size()).isEqualTo(3);
     }
 }

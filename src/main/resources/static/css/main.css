@@ -155,19 +155,11 @@ body {
 }
 
 .users .person .user .status.online {
-    background: #9ec94a;
+    background: #2ecc71;
 }
 
 .users .person .user .status.offline {
-    background: #c4d2e2;
-}
-
-.users .person .user .status.away {
-    background: #f9be52;
-}
-
-.users .person .user .status.busy {
-    background: #fd7274;
+    background: #e74c3c;
 }
 
 .users .person p.name-time {

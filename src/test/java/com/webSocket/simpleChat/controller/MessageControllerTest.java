@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -47,14 +50,15 @@ public class MessageControllerTest {
 
     @Test
     public void shouldGetMessages() throws Exception {
-        when(messageService.findMessagesOfTwoUsers("user1", "user2"))
-                .thenReturn(Arrays.asList(msg1, msg2));
+        Pageable pageable = PageRequest.of(0, 5);
+        when(messageService.findMessagesOfTwoUsers("user1", "user2", pageable))
+                .thenReturn(new PageImpl<>(Arrays.asList(msg1, msg2)));
 
-        mockMvc.perform(get("/message/user1/user2"))
+        mockMvc.perform(get("/message/user1/user2?page=0&size=5"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(msg2, msg1))));
+                .andExpect(content().json(objectMapper.writeValueAsString(new PageImpl<>(Arrays.asList(msg2, msg1)))));
     }
 
     @Test

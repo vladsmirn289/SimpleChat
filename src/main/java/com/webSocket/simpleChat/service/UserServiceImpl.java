@@ -7,6 +7,8 @@ import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,9 +39,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<User> searchUsers(String search) {
+    public Page<User> searchUsers(String search, Pageable pageable) {
         logger.info("Searching users by keyword: " + search);
-        return userRepo.searchUsers(search);
+        return userRepo.searchUsers(search, pageable);
     }
 
     @Override

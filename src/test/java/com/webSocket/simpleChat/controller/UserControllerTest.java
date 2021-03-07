@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -51,15 +54,15 @@ public class UserControllerTest {
 
     @Test
     public void shouldFindUsersBySearch() throws Exception {
-        when(userService.searchUsers("se"))
-                .thenReturn(Arrays.asList(user1, user2));
+        Pageable pageable = PageRequest.of(0, 5);
+        when(userService.searchUsers("se", pageable))
+                .thenReturn(new PageImpl<>(Arrays.asList(user1, user2)));
 
-        mockMvc.perform(get("/user")
-                        .param("search", "se"))
+        mockMvc.perform(get("/user?search=se&page=0&size=5"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(user1, user2))));
+                .andExpect(content().json(objectMapper.writeValueAsString(new PageImpl<>(Arrays.asList(user1, user2)))));
     }
 
     @Test

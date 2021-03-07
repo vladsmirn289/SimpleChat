@@ -6,6 +6,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -38,7 +40,8 @@ public class MessageRepoTest {
 
     @Test
     public void shouldFindByRecipientAndSender() {
-        List<Message> messages = messageRepo.findMessagesOfTwoUsers("User1", "User2");
+        Pageable pageable = PageRequest.of(0, 5);
+        List<Message> messages = messageRepo.findMessagesOfTwoUsers("User1", "User2", pageable).getContent();
 
         assertThat(messages.size()).isEqualTo(2);
         assertThat(messages).contains(msg1, msg2);

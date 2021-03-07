@@ -5,6 +5,9 @@ import com.webSocket.simpleChat.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,9 +27,10 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> findUsers(@RequestParam String search) {
+    public ResponseEntity<Page<User>> findUsers(@RequestParam String search,
+                                                @PageableDefault(size = 9) Pageable pageable) {
         logger.info("Searching users by keyword: " + search);
-        List<User> users = userService.searchUsers(search);
+        Page<User> users = userService.searchUsers(search, pageable);
 
         return ResponseEntity.ok(users);
     }

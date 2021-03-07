@@ -4,6 +4,10 @@ import com.webSocket.simpleChat.model.Message;
 import com.webSocket.simpleChat.model.MessageStatus;
 import com.webSocket.simpleChat.repository.MessageRepo;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,10 +46,11 @@ public class MessageServiceTest {
 
     @Test
     public void shouldFindMessagesOfTwoUsers() {
-        when(messageRepo.findMessagesOfTwoUsers("user1", "user2"))
-                .thenReturn(Arrays.asList(msg1, msg2));
+        Pageable pageable = PageRequest.of(0, 5);
+        when(messageRepo.findMessagesOfTwoUsers("user1", "user2", pageable))
+                .thenReturn(new PageImpl<>(Arrays.asList(msg1, msg2)));
 
-        List<Message> messages = messageService.findMessagesOfTwoUsers("user1", "user2");
+        List<Message> messages = messageService.findMessagesOfTwoUsers("user1", "user2", pageable).getContent();
         assertThat(messages.size()).isEqualTo(2);
         assertThat(messages).contains(msg1, msg2);
     }

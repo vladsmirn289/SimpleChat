@@ -4,6 +4,10 @@ import com.webSocket.simpleChat.model.User;
 import com.webSocket.simpleChat.repository.UserRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -55,11 +59,13 @@ public class UserServiceTest {
 
     @Test
     void shouldSearchUsers() {
+        Pageable pageable = PageRequest.of(0, 5);
         List<User> users = Arrays.asList(new User("user1", "pass"), new User("user2", "pass"));
-        when(userRepo.searchUsers("se"))
-                .thenReturn(users);
+        Page<User> page = new PageImpl<>(users);
+        when(userRepo.searchUsers("se", pageable))
+                .thenReturn(page);
 
-        assertThat(userService.searchUsers("se"))
+        assertThat(userService.searchUsers("se", pageable).getContent())
                 .isEqualTo(users);
     }
 
