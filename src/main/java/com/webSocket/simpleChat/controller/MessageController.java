@@ -1,5 +1,6 @@
 package com.webSocket.simpleChat.controller;
 
+import com.webSocket.simpleChat.jackson.StringDTO;
 import com.webSocket.simpleChat.model.Message;
 import com.webSocket.simpleChat.model.MessageStatus;
 import com.webSocket.simpleChat.service.MessageService;
@@ -81,6 +82,7 @@ public class MessageController {
 
         message.setStatus(MessageStatus.READ);
         messageService.save(message);
-        simpMessagingTemplate.convertAndSend("/topic/update/" + message.getSender(), message.getRecipient());
+        StringDTO stringDTO = new StringDTO(message.getRecipient());
+        simpMessagingTemplate.convertAndSend("/topic/update/" + message.getSender(), stringDTO);
     }
 }

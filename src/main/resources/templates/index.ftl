@@ -1,7 +1,8 @@
 <#import "common.ftl" as c>
+<#import "profile.ftl" as p>
 <#include "security.ftl">
 
-<@c.commonPage '<link href="/css/main.css" rel="stylesheet">'>
+<@c.commonPage '<link href="/css/main.css" rel="stylesheet"/> <link href="/css/profile.css" rel="stylesheet"/>'>
     <script type="text/javascript" src="/js/chat.js"></script>
 
     <div>
@@ -109,6 +110,10 @@
                                     </div>
 
                                     <ul class="users" id="user_search_ul"></ul>
+                                </div>
+
+                                <div class="chat-box-div" id="profile">
+                                    <@p.profile></@p.profile>
                                 </div>
 
                                 <div class="chat-container" id="chat_with_user">

@@ -1,7 +1,6 @@
 let stompClient = null;
 let username = null;
 let userId = null;
-let scrollEvent = null;
 
 function connect() {
     console.log("connecting to chat...")
@@ -15,7 +14,7 @@ function connect() {
         });
 
         stompClient.subscribe("/topic/update/" + username, function (response) {
-            updateMessages(response.body);
+            updateMessages(JSON.parse(response.body));
         });
 
         stompClient.subscribe("/topic/userStatus/" + username, function (response) {
@@ -44,6 +43,7 @@ function processMessage(message) {
 }
 
 function updateMessages(recipient) {
+    recipient = recipient.message;
     console.log("Updating messages " + recipient);
     if ($('#selected_option').html() === recipient) {
         loadMessages(username, recipient, true);
@@ -307,6 +307,7 @@ function disableChatBoxElements() {
     $('.chat-box').html("");
 
     $('#user_search').hide();
+    $('#profile').hide();
     $('#user_search_ul').html("");
 
     $('.active-user').removeClass('active-user');
@@ -473,6 +474,12 @@ $(function () {
         disableChatBoxElements();
         $('#selected_option').html("User search");
         $('#user_search').show();
+    });
+
+    $('#profile_dropdown').click(function () {
+        disableChatBoxElements();
+        $('#selected_option').html("Profile");
+        $('#profile').show();
     });
 
     $('#refresh_users').click(function () {
