@@ -60,7 +60,7 @@
 
     <Loggers>
 
-        <Logger name="com.scheduler.TaskScheduler" additivity="true" level="debug">
+        <Logger name="com.webSocket.simpleChat" additivity="true" level="debug">
             <AppenderRef ref="debugLog" />
             <AppenderRef ref="infoLog"  />
             <AppenderRef ref="warningsLog" />

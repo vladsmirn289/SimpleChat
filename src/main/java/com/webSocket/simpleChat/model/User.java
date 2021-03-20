@@ -1,6 +1,7 @@
 package com.webSocket.simpleChat.model;
 
 import com.fasterxml.jackson.annotation.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -48,6 +49,13 @@ public class User implements UserDetails {
     @JsonIgnore
     private Set<User> friendsOf = new HashSet<>();
 
+    @Embedded
+    private UserInfo userInfo;
+
+    @Embedded
+    private Notification notification;
+
+    @ColumnDefault("false")
     private boolean isOnline = false;
 
     protected User() {
@@ -113,6 +121,22 @@ public class User implements UserDetails {
 
     public void setFriendsOf(Set<User> friendsOf) {
         this.friendsOf = friendsOf;
+    }
+
+    public UserInfo getUserInfo() {
+        return userInfo;
+    }
+
+    public void setUserInfo(UserInfo userInfo) {
+        this.userInfo = userInfo;
+    }
+
+    public Notification getNotification() {
+        return notification;
+    }
+
+    public void setNotification(Notification notification) {
+        this.notification = notification;
     }
 
     public boolean isOnline() {

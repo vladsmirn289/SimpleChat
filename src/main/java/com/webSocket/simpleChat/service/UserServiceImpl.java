@@ -1,7 +1,9 @@
 package com.webSocket.simpleChat.service;
 
+import com.webSocket.simpleChat.model.Notification;
 import com.webSocket.simpleChat.model.Role;
 import com.webSocket.simpleChat.model.User;
+import com.webSocket.simpleChat.model.UserInfo;
 import com.webSocket.simpleChat.repository.UserRepo;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
@@ -79,9 +81,7 @@ public class UserServiceImpl implements UserService {
             return;
         }
 
-        if (user.getEmail() != null && user.getEmail().isEmpty()) {
-            user.setEmail(null);
-        }
+        setDefaultValues(user);
 
         if (user.getId() == null) {
             logger.info("Saving user with login " + user.getLogin());
@@ -100,6 +100,24 @@ public class UserServiceImpl implements UserService {
         logger.info("Updating user with login " + user.getLogin());
         userRepo.save(user);
         logger.info("User with login " + user.getLogin() + " successfully updated");
+    }
+
+    private void setDefaultValues(User user) {
+        if (user.getEmail() != null && user.getEmail().isEmpty()) {
+            user.setEmail(null);
+        }
+
+        Notification notification = user.getNotification();
+        if (notification == null) {
+            notification = new Notification();
+            user.setNotification(notification);
+        }
+
+        UserInfo userInfo = user.getUserInfo();
+        if (userInfo == null) {
+            userInfo = new UserInfo();
+            user.setUserInfo(userInfo);
+        }
     }
 
     @Override

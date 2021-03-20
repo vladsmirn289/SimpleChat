@@ -58,7 +58,7 @@ public class MessageController {
     }
 
     @MessageMapping("/message/{recipient}/{sender}")
-    public void sendMessage(@DestinationVariable String recipient,
+    public void sendMessageWithFriendship(@DestinationVariable String recipient,
                             @DestinationVariable String sender,
                             Message message) {
         logger.info("Incoming message from " + message.getSender() + " to " + message.getRecipient());

@@ -4,10 +4,12 @@
 
 <@c.commonPage '<link href="/css/main.css" rel="stylesheet"/> <link href="/css/profile.css" rel="stylesheet"/>'>
     <script type="text/javascript" src="/js/chat.js"></script>
+    <script type="text/javascript" src="/js/formValidation.js"></script>
 
     <div>
         <input type="hidden" id="login_name" value="${login_name}"/>
         <input type="hidden" id="user_id" value="${user_id}"/>
+        <input type="hidden" id="user_avatar" value="${avatar}"/>
     </div>
 
     <div class="container">
@@ -72,7 +74,12 @@
                                             <span class="name"><strong id="selected_option">User search</strong></span>
                                         </div>
 
-                                        <div class="dropdown">
+                                        <form action="/logout" method="post">
+                                            <input type="hidden" name="_csrf" value="${_csrf.token}"/>
+                                            <button type="submit" class="btn btn-primary">Logout</button>
+                                        </form>
+
+                                        <div class="dropdown ml-2">
                                             <button class="btn btn-light border btn-lg px-3 dropdown-toggle"
                                                     type="button" id="dropdownMenuButton"
                                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

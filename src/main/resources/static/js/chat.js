@@ -70,7 +70,7 @@ function searchFriends() {
                 $('#user_contacts').append(
                     "<li class='person person_contacts d-flex align-items-center'>\n" +
                     "    <div class='user'>\n" +
-                    "        <img src='https://www.bootdey.com/img/Content/avatar/avatar1.png' alt='Retail Admin'>\n" +
+                    "        <img src='/images/" + friends[i].userInfo.avatar + "' alt='Retail Admin'>\n" +
                     "        <span class='status " + status + "'></span>\n" +
                     "    </div>\n" +
                     "    <div class='flex-grow-1 my-auto' id='flex-wrap'>\n" +
@@ -162,6 +162,9 @@ function loadMessages(user1, user2, clear) {
 }
 
 function renderMessage(msg, prepend) {
+    let senderContact = $('p.name-time > span.name:contains(' + msg.sender + ')');
+    let senderAvatar = senderContact.parent().parent().parent().children('div.user').children('img').attr('src');
+
     let content = msg.content;
     let chatName = msg.sender;
     let status = msg.status;
@@ -190,7 +193,7 @@ function renderMessage(msg, prepend) {
     let leftMsg =
         "<li class='chat-left'>\n" +
         "    <div class='chat-avatar'>\n" +
-        "        <img src='https://www.bootdey.com/img/Content/avatar/avatar3.png' alt='Retail Admin'>\n" +
+        "        <img src='" + senderAvatar + "' alt='Retail Admin'>\n" +
         "        <div class='chat-name'>" + chatName + "</div>\n" +
         "    </div>\n" +
         "    <div class='chat-text' style='max-width: 50%'><p style='white-space: pre-wrap'>" + content + "</p></div>\n" +
@@ -202,7 +205,7 @@ function renderMessage(msg, prepend) {
         "    <div class='chat-hour'>" + time + "  " + checkCircle + "</div>\n" +
         "    <div class='chat-text' style='max-width: 50%'><p style='white-space: pre-wrap'>" + content + "</p></div>\n" +
         "    <div class='chat-avatar'>\n" +
-        "        <img src='https://www.bootdey.com/img/Content/avatar/avatar3.png' alt='Retail Admin'>\n" +
+        "        <img src='/images/" + $('#user_avatar').val() + "' alt='Retail Admin'>\n" +
         "        <div class='chat-name'>" + chatName + "</div>\n" +
         "    </div>\n" +
         "</li>";
@@ -355,7 +358,7 @@ function searchNewUsers() {
                     "<li class='person d-flex align-items-center'>\n" +
                     "    <input type='hidden' id='contact_id' value='" + users[i].id + "'/>" +
                     "    <div class='user'>\n" +
-                    "        <img src='https://www.bootdey.com/img/Content/avatar/avatar1.png' alt='Retail Admin'>\n" +
+                    "        <img src='/images/" + users[i].userInfo.avatar + "' alt='Retail Admin'>\n" +
                     "        <span class='status offline'></span>\n" +
                     "    </div>\n" +
                     "    <div class='flex-grow-1 my-auto'>\n" +
@@ -381,7 +384,6 @@ function searchNewUsers() {
     });
 
     $('.chat-box-div').scroll(function() {
-        console.log($('#user_search_ul').height() + " " + $('.chat-box-div').height());
         if ($(this).scrollTop() + 1 >= $('#user_search_ul').height() - $('.chat-box-div').height()) {
             if (isWorking == false) {
                 isWorking = true;
@@ -408,7 +410,7 @@ function searchNewUsers() {
                                     "<li class='person d-flex align-items-center'>\n" +
                                     "    <input type='hidden' id='contact_id' value='" + users[i].id + "'/>" +
                                     "    <div class='user'>\n" +
-                                    "        <img src='https://www.bootdey.com/img/Content/avatar/avatar1.png' alt='Retail Admin'>\n" +
+                                    "        <img src='/images/" + users[i].userInfo.avatar + "' alt='Retail Admin'>\n" +
                                     "        <span class='status offline'></span>\n" +
                                     "    </div>\n" +
                                     "    <div class='flex-grow-1 my-auto'>\n" +
@@ -453,6 +455,37 @@ function addNewUserToFriends(friend_id, button) {
     setTimeout(searchFriends, 1000);
 }
 
+function fillProfile() {
+    $.ajax({
+        type: "GET",
+        url: "/user/" + userId,
+        data: '',
+        success: function(user) {
+            $('#avatar').html('');
+            $('#avatar').append(
+                "<img src='/images/" + user.userInfo.avatar + "' alt='' class='d-block ui-w-80'/>"
+            );
+
+            $('#change_login').val(user.login);
+            $('#change_realName').val(user.userInfo.realName);
+            $('#change_email').val(user.email);
+            $('#change_bio').val(user.userInfo.bio);
+            $('#change_birthday').val(user.userInfo.birthday);
+            $('#change_country').val(user.userInfo.country);
+            $('#change_phoneNumber').val(user.userInfo.phoneNumber);
+            if (user.email == null || user.email.length == 0) {
+                $('#emailOffline').prop('disabled', true);
+                $('#emailOffline').prop('checked', false);
+            } else {
+                $('#emailOffline').prop('disabled', false);
+                $('#emailOffline').prop('checked', user.notification.emailOffline);
+            }
+        }, error: function(error) {
+            console.log(error);
+        }
+    });
+}
+
 $(function () {
     disableChatBoxElements();
     $('#user_search').show();
@@ -480,6 +513,7 @@ $(function () {
         disableChatBoxElements();
         $('#selected_option').html("Profile");
         $('#profile').show();
+        fillProfile();
     });
 
     $('#refresh_users').click(function () {

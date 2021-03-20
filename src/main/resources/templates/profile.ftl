@@ -7,6 +7,10 @@
     </h4>
 
     <div class="card overflow-hidden">
+        <div class="bg-danger text-white text-center" id="profile_errors">
+
+        </div>
+
         <div class="row no-gutters row-bordered row-border-light">
             <div class="col-md-3 pt-0">
                 <div class="list-group list-group-flush account-settings-links">
@@ -21,11 +25,11 @@
                     <div class="tab-pane fade active show" id="account-general">
 
                         <div class="card-body media align-items-center">
-                            <img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="d-block ui-w-80">
+                            <span id="avatar"></span>
                             <div class="media-body ml-4">
                                 <label class="btn btn-outline-primary">
                                     Upload new photo
-                                    <input type="file" class="account-settings-fileinput">
+                                    <input type="file" name="avatarFile" id="change_avatar" class="account-settings-fileinput">
                                 </label> &nbsp;
 
                                 <div class="text-light small mt-1">Allowed JPG, GIF or PNG. Max size of 800K</div>
@@ -36,15 +40,15 @@
                         <div class="card-body">
                             <div class="form-group">
                                 <label class="form-label">Login</label>
-                                <input type="text" class="form-control mb-1" value="nmaxwell">
+                                <input type="text" name="login" id="change_login" class="form-control mb-1">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Name</label>
-                                <input type="text" class="form-control" value="Nelle Maxwell">
+                                <input type="text" name="realName" id="change_realName" class="form-control">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">E-mail</label>
-                                <input type="text" class="form-control mb-1" value="nmaxwell@mail.com">
+                                <input type="email" name="email" id="change_email" class="form-control mb-1">
                                 <div class="alert alert-warning mt-3">
                                     Your email is not confirmed. Please check your inbox.<br>
                                     <a href="javascript:void(0)">Resend confirmation</a>
@@ -58,12 +62,12 @@
 
                             <div class="form-group">
                                 <label class="form-label">New password</label>
-                                <input type="password" class="form-control">
+                                <input type="password" name="newPassword" id="newPassword" class="form-control">
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Repeat new password</label>
-                                <input type="password" class="form-control">
+                                <input type="password" name="repeatPassword" id="repeatPassword" class="form-control">
                             </div>
 
                         </div>
@@ -73,17 +77,18 @@
 
                             <div class="form-group">
                                 <label class="form-label">Bio</label>
-                                <textarea class="form-control" rows="5">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris nunc arcu, dignissim sit amet sollicitudin iaculis, vehicula id urna. Sed luctus urna nunc. Donec fermentum, magna sit amet rutrum pretium, turpis dolor molestie diam, ut lacinia diam risus eleifend sapien. Curabitur ac nibh nulla. Maecenas nec augue placerat, viverra tellus non, pulvinar risus.</textarea>
+                                <textarea class="form-control" name="change_bio" id="change_bio" rows="5"></textarea>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Birthday</label>
-                                <input type="text" class="form-control" value="May 3, 1995">
+                                <input type="text" name="birthday" id="change_birthday" class="form-control">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Country</label>
-                                <select class="custom-select">
+                                <select name="country" id="change_country" class="custom-select">
+                                    <option></option>
                                     <option>USA</option>
-                                    <option selected="">Canada</option>
+                                    <option>Canada</option>
                                     <option>UK</option>
                                     <option>Germany</option>
                                     <option>France</option>
@@ -96,10 +101,9 @@
                         <hr class="border-light m-0">
                         <div class="card-body pb-2">
 
-                            <h6 class="mb-4">Contacts</h6>
                             <div class="form-group">
                                 <label class="form-label">Phone</label>
-                                <input type="text" class="form-control" value="+0 (123) 456 7891">
+                                <input type="text" name="phoneNumber" id="change_phoneNumber" class="form-control">
                             </div>
 
                         </div>
@@ -108,11 +112,11 @@
                     <div class="tab-pane fade" id="account-notifications">
                         <div class="card-body pb-2">
 
-                            <h6 class="mb-4">Activity</h6>
+                            <h6 class="mb-4">Email</h6>
 
                             <div class="form-group">
                                 <label class="switcher">
-                                    <input type="checkbox" class="switcher-input" checked="">
+                                    <input type="checkbox" name="emailOffline" id="emailOffline" class="switcher-input">
                                     <span class="switcher-indicator">
                                       <span class="switcher-yes"></span>
                                       <span class="switcher-no"></span>
@@ -128,8 +132,7 @@
     </div>
 
     <div class="text-right mt-3">
-        <button type="button" class="btn btn-primary">Save changes</button>&nbsp;
-        <button type="button" class="btn btn-default">Cancel</button>
+        <button type="submit" id="updatingInfo" class="btn btn-primary">Save changes</button>&nbsp;
     </div>
 
 </div>
