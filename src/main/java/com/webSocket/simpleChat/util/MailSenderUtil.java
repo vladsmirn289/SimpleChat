@@ -37,8 +37,8 @@ public class MailSenderUtil {
     public void sendActivationMessage(String to, String name, String uri) {
         sendMessage(
                 to,
-                "Активация электронной почты",
-                "Здравствуйте, " + name + "\nПожалуйста пройдите по данной ссылке, " +
-                        "чтобы активировать почту:\n" + uri);
+                "Email activation",
+                "Hi, " + name + "\nPlease follow to the next link " +
+                        "to activate your email:\n" + uri);
     }
 }
