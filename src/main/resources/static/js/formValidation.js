@@ -43,7 +43,7 @@ $(function () {
         } else {
             formData.append('avatarFile', null);
         }
-        if (avatarFile.size/1024 >= 1024) {
+        if (avatarFile != null && avatarFile.size/1024 >= 1024) {
             $('#profile_errors').append(document.createTextNode(
                 "Max size of avatar must be 800K"));
             $('#profile_errors').append(document.createElement("br"));
