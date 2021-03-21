@@ -11,6 +11,7 @@ import java.util.Optional;
 public interface UserService extends UserDetailsService {
     Optional<User> findByLogin(String login);
     Optional<User> findById(Long id);
+    Optional<User> findByConfirmationCode(String confirmationCode);
     Page<User> searchUsers(String search, Pageable pageable);
     List<User> findFriends(User user);
     List<User> findFollowers(User user);

@@ -38,8 +38,15 @@ $(function () {
         formData.append('country', country);
         formData.append('phoneNumber', phoneNumber);
         formData.append('emailOffline', emailOffline);
-        if (avatarFile != null) {
+        if (avatarFile != null && avatarFile.toString().length != 0 && avatarFile.size/1024 <= 800) {
             formData.append('avatarFile', avatarFile);
+        } else {
+            formData.append('avatarFile', null);
+        }
+        if (avatarFile.size/1024 >= 1024) {
+            $('#profile_errors').append(document.createTextNode(
+                "Max size of avatar must be 800K"));
+            $('#profile_errors').append(document.createElement("br"));
         }
         formData.append('_csrf', $('meta[name="csrf-token"]').attr('content'));
 
@@ -61,6 +68,6 @@ $(function () {
             }
         });
 
-        setTimeout(fillProfile, 1000);
+        setTimeout(fillProfile, 2000);
     });
 });

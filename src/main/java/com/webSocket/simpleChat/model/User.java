@@ -1,7 +1,8 @@
 package com.webSocket.simpleChat.model;
 
-import com.fasterxml.jackson.annotation.*;
-import org.hibernate.annotations.ColumnDefault;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -55,8 +56,10 @@ public class User implements UserDetails {
     @Embedded
     private Notification notification;
 
-    @ColumnDefault("false")
+    @Column(columnDefinition = "boolean default false")
     private boolean isOnline = false;
+
+    private String confirmationCode;
 
     protected User() {
 
@@ -145,6 +148,14 @@ public class User implements UserDetails {
 
     public void setOnline(boolean online) {
         isOnline = online;
+    }
+
+    public String getConfirmationCode() {
+        return confirmationCode;
+    }
+
+    public void setConfirmationCode(String confirmationCode) {
+        this.confirmationCode = confirmationCode;
     }
 
     @Override

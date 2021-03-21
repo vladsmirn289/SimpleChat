@@ -49,9 +49,9 @@
                             <div class="form-group">
                                 <label class="form-label">E-mail</label>
                                 <input type="email" name="email" id="change_email" class="form-control mb-1">
-                                <div class="alert alert-warning mt-3">
+                                <div class="alert alert-warning mt-3" id="emailNotConfirm">
                                     Your email is not confirmed. Please check your inbox.<br>
-                                    <a href="javascript:void(0)">Resend confirmation</a>
+                                    <a href="" target="_blank">Resend confirmation</a>
                                 </div>
                             </div>
                         </div>

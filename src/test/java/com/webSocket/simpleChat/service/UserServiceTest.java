@@ -58,6 +58,18 @@ public class UserServiceTest {
     }
 
     @Test
+    void shouldFindByConfirmCode() {
+        when(userRepo.findByConfirmationCode("confirm-code"))
+                .thenReturn(Optional.of(testUser));
+
+        Optional<User> found = userService.findByConfirmationCode("confirm-code");
+        assertThat(found.isPresent()).isTrue();
+        User user = found.get();
+        assertThat(user.getLogin()).isEqualTo("testLogin");
+        assertThat(user.getPassword()).isEqualTo("pass");
+    }
+
+    @Test
     void shouldSearchUsers() {
         Pageable pageable = PageRequest.of(0, 5);
         List<User> users = Arrays.asList(new User("user1", "pass"), new User("user2", "pass"));

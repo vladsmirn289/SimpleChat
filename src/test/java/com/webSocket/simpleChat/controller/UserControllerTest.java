@@ -1,9 +1,12 @@
 package com.webSocket.simpleChat.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.webSocket.simpleChat.model.Notification;
 import com.webSocket.simpleChat.model.Role;
 import com.webSocket.simpleChat.model.User;
+import com.webSocket.simpleChat.model.UserInfo;
 import com.webSocket.simpleChat.service.UserService;
+import com.webSocket.simpleChat.util.MailSenderUtil;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +37,9 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -57,6 +63,9 @@ public class UserControllerTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private MailSenderUtil mailSender;
 
     @BeforeEach
     public void init() {
@@ -105,6 +114,41 @@ public class UserControllerTest {
     }
 
     @Test
+    public void shouldResendConfirmation() throws Exception {
+        when(userService.findByLogin("user1"))
+                .thenReturn(Optional.of(user1));
+
+        mockMvc.perform(get("/user/resendConfirmation/user1/email@gmail.com"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string("An email was sent, please check your inbox"));
+
+        assertThat(user1.getConfirmationCode()).isNotNull();
+
+        Mockito.verify(mailSender, times(1))
+                .sendActivationMessage(
+                        eq("email@gmail.com"),
+                        eq("user1"),
+                        any()
+                );
+    }
+
+    @Test
+    public void shouldChangeEmail() throws Exception {
+        user1.setConfirmationCode("confirm-code");
+        when(userService.findByConfirmationCode("confirm-code"))
+                .thenReturn(Optional.of(user1));
+
+        mockMvc.perform(get("/user/setNewEmail/email@gmail.com/confirm-code"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string("Email successfully changed"));
+
+        assertThat(user1.getConfirmationCode()).isNull();
+        assertThat(user1.getEmail()).isEqualTo("email@gmail.com");
+    }
+
+    @Test
     public void notFoundUserWhileSearchingFriends() throws Exception {
         mockMvc.perform(get("/user/friends/150"))
                 .andDo(print())
@@ -144,6 +188,8 @@ public class UserControllerTest {
         User authUser = new User("login", "pass");
         authUser.setId(1L);
         authUser.setRoles(Collections.singleton(Role.USER));
+        authUser.setNotification(new Notification());
+        authUser.setUserInfo(new UserInfo());
 
         Authentication authentication =
                 new UsernamePasswordAuthenticationToken(authUser, null,
@@ -162,7 +208,7 @@ public class UserControllerTest {
                 .file(multipartFile)
                 .with(csrf())
                 .param("login", "Login")
-                .param("email", "")
+                .param("email", "email@gmail.com")
                 .param("realName", "Real name")
                 .param("avatar", "user-male-circle.png")
                 .param("bio", "My bio info")
@@ -181,8 +227,15 @@ public class UserControllerTest {
 
         Files.delete(Paths.get(path + authUser.getUserInfo().getAvatar()));
 
+        Mockito.verify(mailSender, times(1))
+                .sendActivationMessage(
+                        eq("email@gmail.com"),
+                        eq("Login"),
+                        any()
+                );
+
         assertThat(authUser.getLogin()).isEqualTo("Login");
-        assertThat(authUser.getEmail()).isNull();
+        assertThat(authUser.getEmail()).isEqualTo("email@gmail.com");
         assertThat(authUser.getUserInfo().getRealName()).isEqualTo("Real name");
         assertThat(authUser.getUserInfo().getBio()).isEqualTo("My bio info");
         assertThat(authUser.getUserInfo().getBirthday()).isEqualTo("01.01.1900");
@@ -197,6 +250,8 @@ public class UserControllerTest {
         User authUser = new User("login", "pass");
         authUser.setId(1L);
         authUser.setRoles(Collections.singleton(Role.USER));
+        authUser.setNotification(new Notification());
+        authUser.setUserInfo(new UserInfo());
 
         Authentication authentication =
                 new UsernamePasswordAuthenticationToken(authUser, null,
@@ -206,13 +261,7 @@ public class UserControllerTest {
         when(userService.findById(1L))
                 .thenReturn(Optional.of(authUser));
 
-        File testFile = new File("src/test/resources/images/user-male-circle.png");
-        byte[] image = IOUtils.toByteArray(new FileInputStream(testFile));
-        MockMultipartFile multipartFile = new MockMultipartFile(
-                "avatarFile", "user-male-circle.jpg", "image/jpg", image);
-
         MockHttpServletRequestBuilder builder = multipart("/user/changePersonalInfo")
-                .file(multipartFile)
                 .with(csrf())
                 .param("login", "")
                 .param("email", "email")
@@ -234,8 +283,6 @@ public class UserControllerTest {
                         "{\"emailError\":\"Email incorrect\",\"passwordError\":\"Password mismatch\"," +
                                 "\"loginError\":\"Login cannot be empty\"}"
                 ));
-
-        Files.delete(Paths.get(path + authUser.getUserInfo().getAvatar()));
 
         assertThat(authUser.getLogin()).isEqualTo("login");
         assertThat(authUser.getEmail()).isNull();

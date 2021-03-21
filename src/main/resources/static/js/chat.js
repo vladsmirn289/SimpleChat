@@ -473,7 +473,16 @@ function fillProfile() {
             $('#change_birthday').val(user.userInfo.birthday);
             $('#change_country').val(user.userInfo.country);
             $('#change_phoneNumber').val(user.userInfo.phoneNumber);
-            if (user.email == null || user.email.length == 0) {
+
+            if (user.confirmationCode == null) {
+                $('#emailNotConfirm').hide();
+            } else {
+                $('#emailNotConfirm').show();
+                $('#emailNotConfirm').children('a').attr("href",
+                    "http://localhost:8080/user/resendConfirmation/" + user.login + "/" + user.email);
+            }
+
+            if (user.email == null || user.email.length == 0 || user.confirmationCode != null) {
                 $('#emailOffline').prop('disabled', true);
                 $('#emailOffline').prop('checked', false);
             } else {

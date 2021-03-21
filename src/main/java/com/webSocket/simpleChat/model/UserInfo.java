@@ -1,34 +1,33 @@
 package com.webSocket.simpleChat.model;
 
-import org.hibernate.annotations.ColumnDefault;
-
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.validation.constraints.NotNull;
 
 @Embeddable
 public class UserInfo {
     @NotNull
-    @ColumnDefault("")
+    @Column(columnDefinition = "varchar(255) not null default ''")
     private String realName = "";
 
     @NotNull
-    @ColumnDefault("user-male-circle.png")
+    @Column(columnDefinition = "varchar(255) not null default 'user-male-circle.png'")
     private String avatar = "user-male-circle.png";
 
     @NotNull
-    @ColumnDefault("")
+    @Column(columnDefinition = "varchar(255) not null default ''")
     private String bio = "";
 
     @NotNull
-    @ColumnDefault("")
+    @Column(columnDefinition = "varchar(255) not null default ''")
     private String birthday = "";
 
     @NotNull
-    @ColumnDefault("")
+    @Column(columnDefinition = "varchar(255) not null default ''")
     private String country = "";
 
     @NotNull
-    @ColumnDefault("")
+    @Column(columnDefinition = "varchar(255) not null default ''")
     private String phoneNumber = "";
 
     public UserInfo() {

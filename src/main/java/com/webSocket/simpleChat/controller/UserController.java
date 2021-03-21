@@ -4,6 +4,8 @@ import com.webSocket.simpleChat.model.Notification;
 import com.webSocket.simpleChat.model.User;
 import com.webSocket.simpleChat.model.UserInfo;
 import com.webSocket.simpleChat.service.UserService;
+import com.webSocket.simpleChat.util.MailSenderUtil;
+import com.webSocket.simpleChat.util.ValidateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +22,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/user")
@@ -30,16 +32,16 @@ public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
-    private final Set<String> VALID_EXTENSIONS = new HashSet<>(
-            Arrays.asList("jpg", "gif", "png"));
+    private final MailSenderUtil mailSender;
 
     @Value("${uploadPath}")
     private String uploadPath;
 
     @Autowired
-    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
+    public UserController(UserService userService, PasswordEncoder passwordEncoder, MailSenderUtil mailSender) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.mailSender = mailSender;
     }
 
     @GetMapping("/{id}")
@@ -76,6 +78,37 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
+    @GetMapping("/resendConfirmation/{login}/{email}")
+    public ResponseEntity<String> resendConfirmation(@PathVariable String login,
+                                                     @PathVariable String email) {
+        User user = userService.findByLogin(login).orElse(null);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("User with login " + login + " not found");
+        }
+
+        sendCodeForSetNewEmail(user, email);
+        return ResponseEntity.ok("An email was sent, please check your inbox");
+    }
+
+    @GetMapping("/setNewEmail/{email}/{confirmCode}")
+    public ResponseEntity<String> changeEmail(@PathVariable String email,
+                                            @PathVariable String confirmCode) {
+        User user = userService.findByConfirmationCode(confirmCode).orElse(null);
+        if (user == null) {
+            logger.warn("User with confirm code " + confirmCode + " not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("User with confirm code " + confirmCode + " not found");
+        }
+
+        logger.info("Changing email for user " + user.getLogin());
+        user.setConfirmationCode(null);
+        user.setEmail(email);
+        userService.save(user);
+
+        return ResponseEntity.ok("Email successfully changed");
+    }
+
     @PostMapping("/{user_id}/addFriend/{friend_id}")
     public ResponseEntity<Void> addFriend(@PathVariable("user_id") Long userId,
                                           @PathVariable("friend_id") Long friendId) {
@@ -104,15 +137,17 @@ public class UserController {
                                                      String repeatPassword,
                                                      @RequestParam(required = false) MultipartFile avatarFile) throws IOException {
         logger.info("Changing personal info of user " + authUser.getLogin());
-        Map<String, String> errors = validateUserInfo(login, email, newPassword, repeatPassword, avatarFile);
+        Map<String, String> errors = ValidateUtil.validateUserInfo(login, email, newPassword, repeatPassword, avatarFile);
         User userToChange = userService.findById(authUser.getId()).get();
 
         if (!errors.containsKey("loginError")) {
             userToChange.setLogin(login);
         }
 
-        if (!errors.containsKey("emailError")) {
-            //TODO: email login with confirmation
+        if (email != null && !email.isEmpty() && userToChange.getConfirmationCode() == null &&
+                !errors.containsKey("emailError")) {
+            userToChange.setEmail(email);
+            sendCodeForSetNewEmail(userToChange, email);
         }
 
         if (newPassword != null && repeatPassword != null && !errors.containsKey("passwordError")) {
@@ -126,7 +161,13 @@ public class UserController {
             String filename = UUID.randomUUID().toString() + "-" + avatarFile.getOriginalFilename();
             avatarFile.transferTo(new File(uploadPath + filename));
 
+            String oldAvatar = userToChange.getUserInfo().getAvatar();
+            if (!oldAvatar.startsWith("user-male")) {
+                Files.delete(Paths.get(uploadPath + oldAvatar));
+            }
             userInfo.setAvatar(filename);
+        } else {
+            userInfo.setAvatar(userToChange.getUserInfo().getAvatar());
         }
 
         userToChange.setUserInfo(userInfo);
@@ -137,44 +178,21 @@ public class UserController {
         return ResponseEntity.ok(errors);
     }
 
-    private Map<String, String> validateUserInfo(String login, String email,
-                                                 String newPassword, String repeatPassword,
-                                                 MultipartFile avatar) {
-        Map<String, String> errors = new HashMap<>();
-        if (login == null || login.isEmpty()) {
-            logger.warn("Login cannot be empty!");
-            errors.put("loginError", "Login cannot be empty");
+    private void sendCodeForSetNewEmail(User user, String email) {
+        logger.info("Send confirm code for setting new email");
+        String code = UUID.randomUUID().toString();
+        user.setConfirmationCode(code);
+
+        try {
+            mailSender.sendActivationMessage(
+                    email,
+                    user.getLogin(),
+                    "http://localhost:8080/user/setNewEmail/" + email + "/" + code);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return;
         }
 
-        Pattern emailPattern = Pattern.compile("^(([^<>()\\[\\]\\\\.,;:\\s@\"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@\"]+)*)" +
-                "|(\".+\"))@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}])|(([a-zA-Z\\-0-9]+\\.)" +
-                "+[a-zA-Z]{2,}))$", Pattern.CASE_INSENSITIVE);
-        if (email != null && !email.isEmpty()) {
-            Matcher matcher = emailPattern.matcher(email);
-            if (!matcher.find()) {
-                logger.warn("Email incorrect!");
-                errors.put("emailError", "Email incorrect");
-            }
-        }
-
-        if (newPassword != null && repeatPassword != null && !newPassword.equals(repeatPassword)) {
-            logger.warn("Password mismatch!");
-            errors.put("passwordError", "Password mismatch");
-        }
-
-        if (avatar != null) {
-            String[] filenameParts = avatar.getOriginalFilename().split("\\.");
-            if ( filenameParts.length < 2 || !VALID_EXTENSIONS.contains(filenameParts[1]) ) {
-                logger.warn("Invalid extension of avatar!");
-                errors.put("extensionError", "Invalid extension of avatar");
-            }
-
-            if (avatar.getSize()/1024.0 > 800) {
-                logger.warn("Max size of avatar must be 800K!");
-                errors.put("sizeError", "Max size of avatar must be 800K");
-            }
-        }
-
-        return errors;
+        userService.save(user);
     }
 }

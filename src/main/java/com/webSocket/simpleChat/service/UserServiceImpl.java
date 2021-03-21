@@ -75,6 +75,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Optional<User> findByConfirmationCode(String confirmationCode) {
+        return userRepo.findByConfirmationCode(confirmationCode);
+    }
+
+    @Override
     public void save(User user) {
         if (user == null) {
             logger.warn("User is null, saving is cancel");
