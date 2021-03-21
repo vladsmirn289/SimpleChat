@@ -4,9 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.webSocket.simpleChat.jackson.StringDTO;
 import com.webSocket.simpleChat.model.Message;
 import com.webSocket.simpleChat.model.MessageStatus;
-import com.webSocket.simpleChat.model.User;
 import com.webSocket.simpleChat.service.MessageService;
-import com.webSocket.simpleChat.service.UserService;
+import com.webSocket.simpleChat.util.MailSenderUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,13 +24,9 @@ import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.socket.WebSocketHttpHeaders;
-import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
-import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 import org.springframework.web.socket.sockjs.client.SockJsClient;
 import org.springframework.web.socket.sockjs.client.Transport;
@@ -72,6 +67,9 @@ public class MessageControllerTest {
 
     @MockBean
     private MessageService messageService;
+
+    @MockBean
+    private MailSenderUtil mailSender;
 
     @BeforeEach
     public void init() {

@@ -1,13 +1,18 @@
 package com.webSocket.simpleChat.controller;
 
+import com.webSocket.simpleChat.model.Notification;
 import com.webSocket.simpleChat.model.User;
+import com.webSocket.simpleChat.model.UserInfo;
 import com.webSocket.simpleChat.repository.UserRepo;
+import com.webSocket.simpleChat.util.MailSenderUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,12 +32,17 @@ public class LoginControllerTest {
     @Autowired
     private UserRepo userRepo;
 
+    @MockBean
+    private MailSenderUtil mailSender;
+
     private User testUser;
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(8);
 
     @BeforeEach
     public void init() {
         testUser = new User("testUser", passwordEncoder.encode("pass"));
+        testUser.setNotification(new Notification());
+        testUser.setUserInfo(new UserInfo());
         userRepo.save(testUser);
     }
 
