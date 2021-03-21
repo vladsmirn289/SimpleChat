@@ -49,7 +49,7 @@
                                 <div class="users-container">
                                     <div class="chat-search-box">
                                         <div class="input-group">
-                                            <input class="form-control" placeholder="Search">
+                                            <input class="form-control" placeholder="Search" id="fieldContactsSearch">
                                             <div class="input-group-btn">
                                                 <button type="button" id="friends_search" class="btn btn-info mr-1">
                                                     <i class="fa fa-search"></i>

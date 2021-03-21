@@ -57,50 +57,81 @@ function searchFriends() {
         contentType: "application/json",
         data: '',
         success: function(data) {
-            let friends = data;
-            let status;
-            $('#user_contacts').html("");
-            for (let i = 0; i < friends.length; i++) {
-                if (friends[i].online) {
-                    status = "online";
-                } else {
-                    status = "offline";
-                }
-
-                $('#user_contacts').append(
-                    "<li class='person person_contacts d-flex align-items-center'>\n" +
-                    "    <div class='user'>\n" +
-                    "        <img src='/images/" + friends[i].userInfo.avatar + "' alt='Retail Admin'>\n" +
-                    "        <span class='status " + status + "'></span>\n" +
-                    "    </div>\n" +
-                    "    <div class='flex-grow-1 my-auto' id='flex-wrap'>\n" +
-                    "        <p class='name-time'>\n" +
-                    "            <span class='name'>" + friends[i].login + "</span>\n" +
-                    "        </p>\n" +
-                    "    </div>\n" +
-                    "    <div class='badge bg-success'></div>\n" +
-                    "</li>"
-                )
-            }
-
-            $('.person_contacts').click(function () {
-                disableChatBoxElements();
-
-                $('.active-user').removeClass('active-user');
-                $(this).addClass('active-user');
-
-                $('#chat_with_user').show();
-                let friend = $(this).children('#flex-wrap').children('.name-time').children('.name').html();
-                $('#selected_option').html(friend);
-
-                loadMessages(username, friend);
-            });
-
-            findUnreadMessages();
+            placeContactFriends(data)
         }, error: function(error) {
             console.log(error);
         }
     });
+}
+
+function searchContactsByQuery() {
+    let search = $('#fieldContactsSearch').val();
+    if (search == '') {
+        searchFriends();
+        return;
+    }
+
+    $.ajax({
+        type: "GET",
+        url: "/user/friends/" + userId,
+        data: "",
+        success: function(data) {
+            let queryFriends = [];
+            let count = 0;
+            for (let i = 0; i < data.length; ++i) {
+                if (data[i].login.toLowerCase().indexOf(search.toLowerCase()) != -1) {
+                    queryFriends[count] = data[i];
+                    count++;
+                }
+            }
+            placeContactFriends(queryFriends);
+        }, error: function(error) {
+            console.log(error);
+        }
+    });
+}
+
+function placeContactFriends(data) {
+    let friends = data;
+    let status;
+    $('#user_contacts').html("");
+    for (let i = 0; i < friends.length; i++) {
+        if (friends[i].online) {
+            status = "online";
+        } else {
+            status = "offline";
+        }
+
+        $('#user_contacts').append(
+            "<li class='person person_contacts d-flex align-items-center'>\n" +
+            "    <div class='user'>\n" +
+            "        <img src='/images/" + friends[i].userInfo.avatar + "' alt='Retail Admin'>\n" +
+            "        <span class='status " + status + "'></span>\n" +
+            "    </div>\n" +
+            "    <div class='flex-grow-1 my-auto' id='flex-wrap'>\n" +
+            "        <p class='name-time'>\n" +
+            "            <span class='name'>" + friends[i].login + "</span>\n" +
+            "        </p>\n" +
+            "    </div>\n" +
+            "    <div class='badge bg-success'></div>\n" +
+            "</li>"
+        )
+    }
+
+    $('.person_contacts').click(function () {
+        disableChatBoxElements();
+
+        $('.active-user').removeClass('active-user');
+        $(this).addClass('active-user');
+
+        $('#chat_with_user').show();
+        let friend = $(this).children('#flex-wrap').children('.name-time').children('.name').html();
+        $('#selected_option').html(friend);
+
+        loadMessages(username, friend);
+    });
+
+    findUnreadMessages();
 }
 
 function loadMessages(user1, user2, clear) {
@@ -535,4 +566,8 @@ $(function () {
         let sender = username;
         sendMessage(recipient, sender, text);
     });
+
+    $('#friends_search').click(function () {
+        searchContactsByQuery();
+    })
 });
