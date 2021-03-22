@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -57,6 +58,10 @@ public class MessageControllerTest {
 
     @LocalServerPort
     private int port;
+
+    @Value("${host}")
+    private String host;
+
     private String URL;
 
     private CompletableFuture<Message> messageFuture;
@@ -75,7 +80,11 @@ public class MessageControllerTest {
     public void init() {
         messageFuture = new CompletableFuture<>();
         stringFuture = new CompletableFuture<>();
-        URL = "ws://localhost:" + port + "/ws";
+
+        if (host.equals("localhost:8080")) {
+            host = "localhost:";
+        }
+        URL = "ws://" + host + port + "/ws";
 
         msg1 = new Message("user" +
                 "" +

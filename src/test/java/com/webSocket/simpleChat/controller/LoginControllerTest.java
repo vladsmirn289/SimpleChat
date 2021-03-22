@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.core.StringContains.containsString;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -29,6 +31,9 @@ public class LoginControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Value("${host}")
+    private String host;
+
     @Autowired
     private UserRepo userRepo;
 
@@ -40,6 +45,10 @@ public class LoginControllerTest {
 
     @BeforeEach
     public void init() {
+        if (host.equals("localhost:8080")) {
+            host = "localhost";
+        }
+
         testUser = new User("testUser", passwordEncoder.encode("pass"));
         testUser.setNotification(new Notification());
         testUser.setUserInfo(new UserInfo());
@@ -64,7 +73,7 @@ public class LoginControllerTest {
         mockMvc.perform(get("/"))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("http://localhost/login"));
+                .andExpect(redirectedUrl("http://" + host + "/login"));
     }
 
     @Test

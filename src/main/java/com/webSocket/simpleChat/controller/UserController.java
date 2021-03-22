@@ -32,16 +32,16 @@ public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
-    private final MailSenderUtil mailSender;
+    //private final MailSenderUtil mailSender;
 
     @Value("${uploadPath}")
     private String uploadPath;
 
     @Autowired
-    public UserController(UserService userService, PasswordEncoder passwordEncoder, MailSenderUtil mailSender) {
+    public UserController(UserService userService, PasswordEncoder passwordEncoder){//}, MailSenderUtil mailSender) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
-        this.mailSender = mailSender;
+        //this.mailSender = mailSender;
     }
 
     @GetMapping("/{id}")
@@ -87,7 +87,7 @@ public class UserController {
                     .body("User with login " + login + " not found");
         }
 
-        sendCodeForSetNewEmail(user, email);
+        userService.sendCodeForSetNewEmail(user, email);
         return ResponseEntity.ok("An email was sent, please check your inbox");
     }
 
@@ -147,7 +147,7 @@ public class UserController {
         if (email != null && !email.isEmpty() && userToChange.getConfirmationCode() == null &&
                 !errors.containsKey("emailError") && !email.equals(userToChange.getEmail())) {
             userToChange.setEmail(email);
-            sendCodeForSetNewEmail(userToChange, email);
+            userService.sendCodeForSetNewEmail(userToChange, email);
         }
 
         if (newPassword != null && repeatPassword != null && !errors.containsKey("passwordError")) {
@@ -176,23 +176,5 @@ public class UserController {
         userService.save(userToChange);
 
         return ResponseEntity.ok(errors);
-    }
-
-    private void sendCodeForSetNewEmail(User user, String email) {
-        logger.info("Send confirm code for setting new email");
-        String code = UUID.randomUUID().toString();
-        user.setConfirmationCode(code);
-
-        try {
-            mailSender.sendActivationMessage(
-                    email,
-                    user.getLogin(),
-                    "http://localhost:8080/user/setNewEmail/" + email + "/" + code);
-        } catch (Exception e) {
-            logger.error(e.toString());
-            return;
-        }
-
-        userService.save(user);
     }
 }

@@ -2,6 +2,7 @@ package com.webSocket.simpleChat.service;
 
 import com.webSocket.simpleChat.model.User;
 import com.webSocket.simpleChat.repository.UserRepo;
+import com.webSocket.simpleChat.util.MailSenderUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
@@ -23,9 +24,10 @@ import static org.mockito.Mockito.*;
 
 public class UserServiceTest {
     private final UserRepo userRepo = mock(UserRepo.class);
+    private final MailSenderUtil mailSender = mock(MailSenderUtil.class);
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(8);
     private User testUser, testUser2;
-    private final UserService userService = new UserServiceImpl(userRepo, passwordEncoder);
+    private final UserService userService = new UserServiceImpl(userRepo, passwordEncoder, mailSender);
 
     @BeforeEach
     public void init() {

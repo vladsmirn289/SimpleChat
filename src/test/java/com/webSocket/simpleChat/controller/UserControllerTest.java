@@ -34,10 +34,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
@@ -123,13 +125,10 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("An email was sent, please check your inbox"));
 
-        assertThat(user1.getConfirmationCode()).isNotNull();
-
-        Mockito.verify(mailSender, times(1))
-                .sendActivationMessage(
-                        eq("email@gmail.com"),
-                        eq("user1"),
-                        any()
+        Mockito.verify(userService, times(1))
+                .sendCodeForSetNewEmail(
+                        eq(user1),
+                        eq("email@gmail.com")
                 );
     }
 
@@ -227,11 +226,10 @@ public class UserControllerTest {
 
         Files.delete(Paths.get(path + authUser.getUserInfo().getAvatar()));
 
-        Mockito.verify(mailSender, times(1))
-                .sendActivationMessage(
-                        eq("email@gmail.com"),
-                        eq("Login"),
-                        any()
+        Mockito.verify(userService, times(1))
+                .sendCodeForSetNewEmail(
+                        eq(authUser),
+                        eq("email@gmail.com")
                 );
 
         assertThat(authUser.getLogin()).isEqualTo("Login");

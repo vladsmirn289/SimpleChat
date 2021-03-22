@@ -5,10 +5,12 @@ import com.webSocket.simpleChat.model.Role;
 import com.webSocket.simpleChat.model.User;
 import com.webSocket.simpleChat.model.UserInfo;
 import com.webSocket.simpleChat.repository.UserRepo;
+import com.webSocket.simpleChat.util.MailSenderUtil;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,11 +27,16 @@ public class UserServiceImpl implements UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserRepo userRepo;
     private final PasswordEncoder passwordEncoder;
+    private final MailSenderUtil mailSender;
+
+    @Value("${host}")
+    private String host;
 
     @Autowired
-    public UserServiceImpl(UserRepo userRepo, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepo userRepo, PasswordEncoder passwordEncoder, MailSenderUtil mailSender) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
+        this.mailSender = mailSender;
     }
 
     @Override
@@ -142,6 +149,25 @@ public class UserServiceImpl implements UserService {
         }
 
         logger.info("User " + friend + " already exists in user " + user + " friends");
+    }
+
+    @Override
+    public void sendCodeForSetNewEmail(User user, String email) {
+        logger.info("Send confirm code for setting new email");
+        String code = UUID.randomUUID().toString();
+        user.setConfirmationCode(code);
+
+        try {
+            mailSender.sendActivationMessage(
+                    email,
+                    user.getLogin(),
+                    "http://" + host + "/user/setNewEmail/" + email + "/" + code);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return;
+        }
+
+        save(user);
     }
 
     @Override

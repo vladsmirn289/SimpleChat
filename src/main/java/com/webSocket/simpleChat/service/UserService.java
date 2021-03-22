@@ -19,4 +19,6 @@ public interface UserService extends UserDetailsService {
     void save(User user);
 
     void setFriendIfAbsent(String user, String friend);
+
+    void sendCodeForSetNewEmail(User user, String email);
 }

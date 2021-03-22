@@ -10,6 +10,7 @@
         <input type="hidden" id="login_name" value="${login_name}"/>
         <input type="hidden" id="user_id" value="${user_id}"/>
         <input type="hidden" id="user_avatar" value="${avatar}"/>
+        <input type="hidden" id="host" value="$host$"/>
     </div>
 
     <div class="container">
