@@ -55,6 +55,10 @@ public class RegisterController {
 
         logger.info("Saving new user to database");
         userService.save(newUser);
+        String email = newUser.getEmail();
+        if (email != null && !email.isEmpty()) {
+            userService.sendCodeForSetNewEmail(newUser, email);
+        }
         logger.info("New user with login " + newUser.getLogin() + " successfully registered!");
 
         return "redirect:/login#login_tab";
