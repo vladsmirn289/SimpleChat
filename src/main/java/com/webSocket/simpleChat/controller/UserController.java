@@ -144,8 +144,8 @@ public class UserController {
             userToChange.setLogin(login);
         }
 
-        if (email != null && !email.isEmpty() && userToChange.getConfirmationCode() == null &&
-                !errors.containsKey("emailError") && !email.equals(userToChange.getEmail())) {
+        if (email != null && !email.isEmpty() && !errors.containsKey("emailError") &&
+                !email.equals(userToChange.getEmail())) {
             userToChange.setEmail(email);
             userService.sendCodeForSetNewEmail(userToChange, email);
         }
