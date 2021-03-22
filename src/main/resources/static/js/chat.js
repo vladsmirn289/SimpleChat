@@ -510,7 +510,7 @@ function fillProfile() {
             } else {
                 $('#emailNotConfirm').show();
                 $('#emailNotConfirm').children('a').attr("href",
-                    "http://" + $('#host').val() + "/user/resendConfirmation/" + user.login + "/" + user.email);
+                    "http://simple-chat-messenger.herokuapp.com/user/resendConfirmation/" + user.login + "/" + user.email);
             }
 
             if (user.email == null || user.email.length == 0 || user.confirmationCode != null) {
